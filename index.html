@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI CLASSROOM</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjs@12.4.2/lib/browser/math.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#0a1030;--card:rgba(14,20,56,.82);--line:rgba(160,150,255,.35);--c:#4de1ff;--p:#9b7bff;--m:#ff5fd2;--g:#ffd166;--t:#f4f6ff}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;color:var(--t);min-height:100vh;
+background:radial-gradient(ellipse at 20% 10%,#3a1d7a55,transparent 50%),radial-gradient(ellipse at 85% 30%,#0e6fa855,transparent 50%),radial-gradient(ellipse at 50% 100%,#8a2a8a44,transparent 55%),var(--bg);background-attachment:fixed}
+nav{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 14px;background:#070b24cc;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+nav b{margin-right:8px;font-size:18px}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);color:var(--t);background:rgba(155,123,255,.18);padding:9px 14px;border-radius:12px;transition:.15s}
+button:hover{border-color:var(--c);background:rgba(77,225,255,.2)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:linear-gradient(90deg,var(--p),var(--c));color:#04122a;font-weight:800;border:0}
+.back{background:#ffd16622;border-color:var(--g)}
+main{max-width:1050px;margin:0 auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 8px 40px #6a4dff33}
+h1{font-size:clamp(26px,5vw,42px);margin:.2em 0}
+textarea,input{width:100%;font:inherit;color:var(--t);background:#050a24;border:1px solid var(--line);border-radius:12px;padding:12px}
+textarea{min-height:120px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.view{display:none}.view.on{display:block}
+.mono{font-family:'JetBrains Mono',monospace}
+.out{white-space:pre-wrap;line-height:1.7;background:#050a24;border-radius:12px;padding:12px;border:1px solid var(--line)}
+.mic.on{background:#ff3b6b;border-color:#ff3b6b;animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #ff3b6b33}}
+.sym{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}.sym button{padding:5px 9px;font-size:14px}
+#fab{position:fixed;right:18px;bottom:18px;width:60px;height:60px;border-radius:50%;font-size:26px;z-index:30;background:radial-gradient(circle,var(--c),var(--p));box-shadow:0 0 25px var(--c)}
+#chat{position:fixed;right:14px;bottom:90px;width:min(400px,calc(100vw - 28px));height:min(560px,70vh);display:none;flex-direction:column;z-index:30;padding:12px}
+#chat.on{display:flex}#msgs{flex:1;overflow:auto}
+.msg{margin:6px 0;padding:8px 12px;border-radius:14px;max-width:92%;white-space:pre-wrap;line-height:1.6}
+.me{background:linear-gradient(90deg,#3b2a8a,#0b5a7a);margin-left:auto;border:1px solid var(--c)}
+.bot{background:#050a24;border:1px solid var(--line)}
+.die{width:84px;height:84px;background:#fff;border-radius:16px;box-shadow:inset 0 -6px 0 #ccd,0 6px 14px #0008;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:11px;gap:2px}
+.die i{border-radius:50%;background:#14193a;box-shadow:inset 0 2px 3px #000a;margin:2px}.die i.off{visibility:hidden}
+.die.roll{animation:roll .7s}@keyframes roll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(360deg) scale(1.25)}100%{transform:rotate(720deg) scale(1)}}
+.track{display:flex;gap:4px;margin:10px 0;overflow:auto}.cell{min-width:34px;height:34px;border-radius:8px;background:#ffffff14;display:grid;place-items:center;font-size:12px}.cell.ship{background:var(--c);color:#000}
+.post{border-left:3px solid var(--p);padding-left:10px;margin:10px 0}
+.warn{color:var(--g)}
+footer{text-align:center;font-size:12px;opacity:.7;padding:20px}
+</style>
+</head>
+<body>
+<nav>
+<b onclick="go('home')" style="cursor:pointer">∑ AI CLASSROOM</b>
+<button onclick="go('solve')">Giải bài</button>
+<button onclick="go('game')">Chơi trò chơi</button>
+<button onclick="go('forum')">Diễn đàn</button>
+<span style="flex:1"></span><span id="who" class="mono"></span>
+<button class="primary" onclick="go('solve')">Giải Đề Ngay</button>
+</nav>
+<main>
+<section id="home" class="view on">
+<div class="card"><small>BEYOND THE KNOWN UNIVERSE</small><h1>Mỗi con số mở ra một bí ẩn</h1>
+<p>Learn. Play. Solve. Level Up.</p>
+<button class="primary" onclick="go('solve')">Bắt đầu khám phá</button></div>
+<div class="grid">
+<div class="card"><h3>Giải bài – AI BUDDY</h3><p>Nhập đề, chụp ảnh, nói bằng micro hoặc chỉ bấm “=” để tính.</p><button class="primary" onclick="go('solve')">Bắt đầu giải bài</button></div>
+<div class="card"><h3>Chơi trò chơi</h3><p>Cosmic Dice Rush – tung xúc xắc và quan sát tần suất thực nghiệm.</p><button class="primary" onclick="go('game')">Chơi ngay</button></div>
+<div class="card"><h3>Diễn đàn</h3><p>Trao đổi thật giữa các bạn, đồng bộ qua Supabase.</p><button class="primary" onclick="go('forum')">Vào diễn đàn</button></div>
+</div></section>
+
+<section id="solve" class="view">
+<button class="back" onclick="go('home')">← Quay về trang chủ</button>
+<div class="card"><h2>AI BUDDY – SOLVE</h2>
+<p>Chào bạn! Hãy gửi bài tập mà bạn cần hỗ trợ nhé.</p>
+<div class="sym" id="sym"></div>
+<textarea id="prob" placeholder="Gõ đề, dán đề, hoặc nhập phép tính (vd: 3*(4+5)^2, C(10,3), sqrt(2))"></textarea>
+<div class="row">
+<button id="micBtn" class="mic" onclick="toggleMic()" aria-label="Micro">🎤 Micro</button><span id="micSt"></span>
+<button onclick="document.getElementById('file').click()">🖼️ Tải ảnh</button>
+<button onclick="openCam()">📷 Chụp ảnh</button>
+<input id="file" type="file" accept="image/*" hidden onchange="ocrFile(this.files[0])" />
+<button onclick="calc()" title="Chỉ tính phép tính">＝ Tính</button>
+<button class="primary" onclick="solve()">Giải đề</button>
+<button onclick="prob.value='';prev()">Xóa</button>
+</div>
+<video id="vid" playsinline style="display:none;width:100%;border-radius:12px"></video>
+<button id="snap" style="display:none" onclick="snap()">📸 Chụp</button>
+<div id="ocrSt" class="warn"></div>
+<h4>Xem trước (KaTeX)</h4><div id="prev" class="out"></div>
+<div id="res" class="out" style="margin-top:10px;display:none"></div>
+<div class="row" id="ttsBar" style="display:none">
+<button onclick="speak(res.dataset.raw)">🔊 Nghe lời giải</button>
+<button onclick="speechSynthesis.pause()">⏸</button><button onclick="speechSynthesis.resume()">▶</button><button onclick="speechSynthesis.cancel()">⏹</button>
+</div></div></section>
+
+<section id="game" class="view">
+<button class="back" onclick="go('home')">← Quay về trang chủ</button>
+<div class="card"><h2>🎲 Cosmic Dice Rush</h2>
+<p>Mục tiêu: đưa tàu đến đích (ô 30) trong 12 lượt. Dự đoán tổng hai xúc xắc trước khi tung; đoán đúng thì tàu đi nhanh gấp đôi.</p>
+<div class="row"><label>Dự đoán tổng: <select id="guess"></select></label>
+<button class="primary" id="rollBtn" onclick="roll()">Tung xúc xắc</button>
+<button onclick="newGame()">Chơi lại</button><span id="gst" class="mono"></span></div>
+<div class="row" style="justify-content:center"><div class="die" id="d1"></div><div class="die" id="d2"></div></div>
+<div class="track" id="track"></div>
+<div id="gmsg" class="out"></div></div></section>
+
+<section id="forum" class="view">
+<button class="back" onclick="go('home')">← Quay về trang chủ</button>
+<div class="card"><h2>Diễn đàn</h2><div id="fstat" class="warn"></div>
+<input id="ftitle" placeholder="Tiêu đề" />
+<div class="sym" id="sym2"></div>
+<textarea id="fbody" placeholder="Nội dung, công thức gõ trong \( ... \)"></textarea>
+<div class="row"><button class="primary" onclick="post()">Đăng bài</button></div></div>
+<div id="posts"></div></section>
+</main>
+
+<button id="fab" onclick="chat.classList.toggle('on')" aria-label="Chatbot AI">💬</button>
+<div id="chat" class="card">
+<div class="row"><b>Bạn học toán AI</b><span style="flex:1"></span><button onclick="chat.classList.remove('on')">✕</button></div>
+<div id="msgs"></div>
+<div class="row"><input id="cin" placeholder="Hỏi mình bất cứ điều gì về toán…" onkeydown="if(event.key==='Enter')ask()" /><button class="primary" onclick="ask()">Gửi</button></div>
+</div>
+<footer>© Nhóm 3 - D01</footer>
+<script src="app.js"></script>
+</body>
+</html>
